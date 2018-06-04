@@ -1,2 +1,6 @@
-# axon-demo
-Axonframework Demo
+# Axonframework Bank Demo Applicatin (Kotlin)
+### Json Serialize 
+### Upcast
+### Snapshot
+### Saga
+
