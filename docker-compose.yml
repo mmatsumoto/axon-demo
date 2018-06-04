@@ -1,0 +1,21 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:9.6
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=axon
+      - POSTGRES_USER=axon
+      - POSTGRES_PASSWORD=axon
+      - MAX_CONNECTIONS=300
+    networks:
+      - custom
+
+networks:
+  custom:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.66.80.0/24

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entity-mappings
+        xmlns="http://java.sun.com/xml/ns/persistence/orm"
+        version="2.0">
+    <mapped-superclass class="org.axonframework.eventsourcing.eventstore.AbstractSequencedDomainEventEntry" access="FIELD">
+        <attributes>
+            <id name="globalIndex">
+                <column name="global_index"/>
+                <generated-value generator="generator" strategy="SEQUENCE"/>
+                <sequence-generator name="generator" sequence-name="domain_event_entry_seq" allocation-size="1"/>
+            </id>
+        </attributes>
+    </mapped-superclass>
+
+    <mapped-superclass class="org.axonframework.eventsourcing.eventstore.AbstractEventEntry" access="FIELD">
+        <attributes>
+            <basic name="payload">
+                <column name="payload"/>
+            </basic>
+            <basic name="metaData">
+                <column name="meta_data"/>
+            </basic>
+        </attributes>
+    </mapped-superclass>
+
+    <mapped-superclass class="org.axonframework.eventhandling.tokenstore.AbstractTokenEntry" access="FIELD">
+        <attributes>
+            <basic name="token">
+                <column name="token"/>
+            </basic>
+        </attributes>
+    </mapped-superclass>
+
+    <mapped-superclass class="org.axonframework.eventhandling.saga.repository.jpa.AbstractSagaEntry" access="FIELD">
+        <attributes>
+            <basic name="serializedSaga">
+                <column name="serialized_saga"/>
+            </basic>
+        </attributes>
+
+    </mapped-superclass>
+
+</entity-mappings>
