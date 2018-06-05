@@ -19,7 +19,6 @@ import org.axonframework.commandhandling.model.AggregateNotFoundException
 import org.axonframework.eventhandling.saga.EndSaga
 import org.axonframework.eventhandling.saga.SagaEventHandler
 import org.axonframework.eventhandling.saga.SagaLifecycle
-import org.axonframework.eventhandling.saga.SagaLifecycle.end
 import org.axonframework.eventhandling.saga.StartSaga
 import org.axonframework.serialization.Revision
 import org.axonframework.spring.stereotype.Saga

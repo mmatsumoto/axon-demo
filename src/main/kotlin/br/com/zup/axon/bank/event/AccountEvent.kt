@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.axonframework.commandhandling.TargetAggregateIdentifier
 import org.axonframework.serialization.Revision
-import org.springframework.web.bind.annotation.ResponseBody
 
 data class CreateAccountCommand(@field:TargetAggregateIdentifier val id: AccountId, val name: AccountName, val gender: Gender, val money: Money)
 @Revision("3.0")

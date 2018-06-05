@@ -1,18 +1,19 @@
-
+###
 POST http://localhost:8080/accounts
 Content-Type: application/json
 
 < createAccount.json
 
 ###
-
-
 GET http://localhost:8080/accounts
 Content-Type: application/json
 
 ###
+GET http://localhost:8080/accounts/154a4c1b-eb99-4ad3-b95a-4a17d00427bb
+Content-Type: application/json
 
-GET http://localhost:8080/accounts
+###
+GET localhost:8080/accounts/memory
 Content-Type: application/json
 
 ###
@@ -20,12 +21,18 @@ PUT http://localhost:8080/accounts/154a4c1b-eb99-4ad3-b95a-4a17d00427bb/deposit/
 Content-Type: application/json
 
 ###
-
+PUT http://localhost:8080/accounts/154a4c1b-eb99-4ad3-b95a-4a17d00427bb/withdraw/20
+Content-Type: application/json
 
 ###
-GET localhost:8080/accounts/memory
+DELETE http://localhost:8080/accounts/154a4c1b-eb99-4ad3-b95a-4a17d00427bb
 Content-Type: application/json
 
 ###
 PUT http://localhost:8080/accounts/transfer/e9a4a770-3ce4-4421-a795-8a1dfe38f23c/99c5a6fc-1b91-4421-86c4-339b9c43eb81/100
 Content-Type: application/json
+
+###
+GET localhost:8080/transfers
+
+###

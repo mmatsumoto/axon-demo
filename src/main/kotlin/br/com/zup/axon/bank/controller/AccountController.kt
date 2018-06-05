@@ -11,7 +11,6 @@ import br.com.zup.axon.bank.event.RequestTransferMoneyCommand
 import br.com.zup.axon.bank.event.WithdrawMoneyCommand
 import br.com.zup.axon.bank.view.jpa.AccountService
 import org.axonframework.commandhandling.gateway.CommandGateway
-import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity

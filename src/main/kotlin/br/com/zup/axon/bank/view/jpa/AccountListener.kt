@@ -16,7 +16,7 @@ class AccountListener(private val accountService: AccountService) {
 
     @EventHandler
     fun on(event: AccountCreatedEvent) {
-        logger.info("event received at ${this.javaClass.name}")
+        logger.info("$event received at ${this.javaClass.name}")
 
         accountService.create(event)
                 .also { logger.info("$it saved at jpa view") }
@@ -25,7 +25,7 @@ class AccountListener(private val accountService: AccountService) {
 
     @EventHandler
     fun on(event: MoneyDepositedEvent) {
-        logger.info("event received at ${this.javaClass.name}")
+        logger.info("$event received at ${this.javaClass.name}")
 
         accountService.deposit(event)
                 .also { logger.info("$it deposited at jpa view") }
@@ -34,7 +34,7 @@ class AccountListener(private val accountService: AccountService) {
 
     @EventHandler
     fun on(event: MoneyWithdrawnEvent) {
-        logger.info("event received at ${this.javaClass.name}")
+        logger.info("$event received at ${this.javaClass.name}")
 
         accountService.withdraw(event)
                 .also { logger.info("$it withdraw at jpa view") }

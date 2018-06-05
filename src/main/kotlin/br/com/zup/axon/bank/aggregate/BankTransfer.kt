@@ -4,13 +4,13 @@ import br.com.zup.axon.bank.event.CompleteMoneyTransferCommand
 import br.com.zup.axon.bank.event.FailMoneyTransferCommand
 import br.com.zup.axon.bank.event.MoneyTransferCompletedEvent
 import br.com.zup.axon.bank.event.MoneyTransferFailedEvent
-import br.com.zup.axon.bank.event.TransferMoneyRequestedEvent
 import br.com.zup.axon.bank.event.RequestTransferMoneyCommand
+import br.com.zup.axon.bank.event.TransferMoneyRequestedEvent
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.commandhandling.model.AggregateIdentifier
-import org.axonframework.spring.stereotype.Aggregate
 import org.axonframework.commandhandling.model.AggregateLifecycle.apply
 import org.axonframework.eventsourcing.EventSourcingHandler
+import org.axonframework.spring.stereotype.Aggregate
 
 enum class BankTransferStatus {
     STARTED, FAILED, COMPLETED
@@ -63,12 +63,12 @@ final class BankTransfer constructor(){
     }
 
     @EventSourcingHandler
-    fun on(event: MoneyTransferFailedEvent) {
+    fun on(@Suppress("UNUSED_PARAMETER") event: MoneyTransferFailedEvent) {
         this.status = BankTransferStatus.FAILED
     }
 
     @EventSourcingHandler
-    fun on(event: MoneyTransferCompletedEvent) {
+    fun on(@Suppress("UNUSED_PARAMETER") event: MoneyTransferCompletedEvent) {
         this.status = BankTransferStatus.COMPLETED
     }
 

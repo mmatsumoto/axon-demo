@@ -5,6 +5,15 @@ create table if not exists account (
   primary key (id)
 );
 
+create table if not exists bank_transfer (
+	transaction_id varchar(255) not null,
+	source_id varchar(255) not null,
+	destination_id varchar(255) not null,
+	amount bigint not null,
+	status varchar(255) not null,
+	primary key (transaction_id)
+);
+
 create table if not exists association_value_entry
 (
 	id bigint not null

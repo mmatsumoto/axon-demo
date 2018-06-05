@@ -133,21 +133,4 @@ class BankTransferSagaTest {
                 .expectDispatchedCommands(FailMoneyTransferCommand(transactionId))
     }
 
-    @Test
-    fun `on refund deposidt`() {
-        val transactionId = "txt1"
-        val sourceId =  "acc1"
-        val destinationId =  "acc2"
-        val amount: Money = 100
-
-        fixture.givenAggregate(transactionId)
-                .published(TransferMoneyRequestedEvent(transactionId, sourceId, destinationId, amount),
-                           MoneyWithdrawnEvent(sourceId, transactionId, amount, 100),
-                           MoneyDepositRejectEvent(destinationId, transactionId, amount))
-                .whenPublishingA(MoneyDepositedEvent(sourceId, transactionId, amount, 100, tenant))
-
-                .expectActiveSagas(0)
-                .expectDispatchedCommands(FailMoneyTransferCommand(transactionId))
-    }
-
 }
