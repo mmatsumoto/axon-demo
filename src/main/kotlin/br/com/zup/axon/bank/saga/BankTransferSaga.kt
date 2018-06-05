@@ -11,18 +11,26 @@ import br.com.zup.axon.bank.event.MoneyWithdrawRejectedEvent
 import br.com.zup.axon.bank.event.MoneyWithdrawnEvent
 import br.com.zup.axon.bank.event.TransferMoneyRequestedEvent
 import br.com.zup.axon.bank.event.WithdrawMoneyCommand
+import org.axonframework.commandhandling.CommandCallback
+import org.axonframework.commandhandling.CommandMessage
 import org.axonframework.commandhandling.callbacks.LoggingCallback
 import org.axonframework.commandhandling.gateway.CommandGateway
+import org.axonframework.commandhandling.model.AggregateNotFoundException
 import org.axonframework.eventhandling.saga.EndSaga
 import org.axonframework.eventhandling.saga.SagaEventHandler
+import org.axonframework.eventhandling.saga.SagaLifecycle
+import org.axonframework.eventhandling.saga.SagaLifecycle.end
 import org.axonframework.eventhandling.saga.StartSaga
 import org.axonframework.serialization.Revision
 import org.axonframework.spring.stereotype.Saga
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 
 @Saga
 @Revision("1.0")
 final class BankTransferSaga {
+
+    private val logger = LoggerFactory.getLogger(LoggingCallback::class.java)
 
     @Autowired
     @Transient
@@ -49,14 +57,39 @@ final class BankTransferSaga {
         this.amount = event.amount
 
         commandGateway.send(WithdrawMoneyCommand(event.sourceId, event.transactionId, event.amount),
-                            LoggingCallback.INSTANCE)
+                object: CommandCallback<WithdrawMoneyCommand, AccountId> {
+                    override fun onSuccess(message: CommandMessage<out WithdrawMoneyCommand>, result: AccountId) {
+                        logger.info("Command executed successfully: {}", message.commandName)
+                    }
+
+                    override fun onFailure(message: CommandMessage<out WithdrawMoneyCommand>, cause: Throwable) {
+                        logger.warn("Command resulted in exception: {}", message.commandName, cause)
+                        if (cause is AggregateNotFoundException) {
+                            commandGateway.send(FailMoneyTransferCommand(event.transactionId),
+                                                LoggingCallback.INSTANCE)
+                            SagaLifecycle.end()
+                        }
+                    }
+                })
 
     }
 
     @SagaEventHandler(associationProperty = "transactionId")
     fun on(event: MoneyWithdrawnEvent) {
         commandGateway.send(DepositMoneyCommand(this.destinationId, event.transactionId, event.money),
-                            LoggingCallback.INSTANCE)
+                            object: CommandCallback<DepositMoneyCommand, AccountId> {
+                                override fun onSuccess(message: CommandMessage<out DepositMoneyCommand>, result: AccountId) {
+                                    logger.info("Command executed successfully: {}", message.commandName)
+                                }
+
+                                override fun onFailure(message: CommandMessage<out DepositMoneyCommand>, cause: Throwable) {
+                                    logger.warn("Command resulted in exception: {}", message.commandName, cause)
+                                    if (cause is AggregateNotFoundException) {
+                                        commandGateway.send(DepositMoneyCommand(sourceId, event.transactionId, event.money),
+                                                            LoggingCallback.INSTANCE)
+                                    }
+                                }
+                            })
     }
 
     @EndSaga
@@ -85,3 +118,4 @@ final class BankTransferSaga {
     }
 
 }
+
