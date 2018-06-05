@@ -92,16 +92,16 @@ final class BankTransferSaga {
                             })
     }
 
+    @SagaEventHandler(associationProperty = "transactionId")
+    fun on(event: MoneyDepositRejectEvent) {
+        commandGateway.send(DepositMoneyCommand(this.sourceId, event.transactionId, event.money),
+                            LoggingCallback.INSTANCE)
+    }
+
     @EndSaga
     @SagaEventHandler(associationProperty = "transactionId")
     fun on(event: MoneyWithdrawRejectedEvent) {
         commandGateway.send(FailMoneyTransferCommand(event.transactionId),
-                            LoggingCallback.INSTANCE)
-    }
-
-    @SagaEventHandler(associationProperty = "transactionId")
-    fun on(event: MoneyDepositRejectEvent) {
-        commandGateway.send(DepositMoneyCommand(this.sourceId, event.transactionId, event.money),
                             LoggingCallback.INSTANCE)
     }
 
