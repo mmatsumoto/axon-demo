@@ -1,10 +1,10 @@
-package br.com.zup.axon.bank.view.jpa
+package br.com.zup.axon.bank.view.jpa.transfer
 
-import br.com.zup.axon.bank.aggregate.AccountId
 import br.com.zup.axon.bank.aggregate.BankTransferStatus
-import br.com.zup.axon.bank.event.MoneyTransferCompletedEvent
-import br.com.zup.axon.bank.event.MoneyTransferFailedEvent
-import br.com.zup.axon.bank.event.TransferMoneyRequestedEvent
+import br.com.zup.axon.bank.domain.account.AccountId
+import br.com.zup.axon.bank.domain.transfer.MoneyTransferCompletedEvent
+import br.com.zup.axon.bank.domain.transfer.MoneyTransferFailedEvent
+import br.com.zup.axon.bank.domain.transfer.TransferMoneyRequestedEvent
 import org.axonframework.config.EventHandlingConfiguration
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
@@ -34,21 +34,22 @@ class BankTransferServiceImpl(private val repository: BankTransferRepository,
                                                BankTransferStatus.STARTED))
 
     override fun fail(event: MoneyTransferFailedEvent): BankTransferEntity? =
-        repository.findOne(event.transactionId)
-                ?.copy(status = BankTransferStatus.FAILED)
-                .let { repository.save(it) }
+            repository.findOne(event.transactionId)
+                    ?.copy(status = BankTransferStatus.FAILED)
+                    .let(repository::save)
 
     override fun complete(event: MoneyTransferCompletedEvent): BankTransferEntity? =
             repository.findOne(event.transactionId)
                     ?.copy(status = BankTransferStatus.COMPLETED)
-                    .let { repository.save(it) }
+                    .let(repository::save)
 
     override fun findAll(): List<BankTransferRepresentation> =
             repository.findAll()
-                    .map(this::toRepresentation)
+                    .map(::toRepresentation)
 
     override fun findOne(id: AccountId): BankTransferRepresentation? =
-            repository.findOne(id)?.let(this::toRepresentation)
+            repository.findOne(id)
+                    ?.let(::toRepresentation)
 
     override fun registerTrackingProcessor() {
         config.registerTrackingProcessor(BankTransferListener.GROUP_NAME)

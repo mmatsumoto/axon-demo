@@ -1,15 +1,17 @@
 package br.com.zup.axon.bank.saga
 
-import br.com.zup.axon.bank.aggregate.Money
-import br.com.zup.axon.bank.event.CompleteMoneyTransferCommand
-import br.com.zup.axon.bank.event.DepositMoneyCommand
-import br.com.zup.axon.bank.event.FailMoneyTransferCommand
-import br.com.zup.axon.bank.event.MoneyDepositRejectEvent
-import br.com.zup.axon.bank.event.MoneyDepositedEvent
-import br.com.zup.axon.bank.event.MoneyWithdrawRejectedEvent
-import br.com.zup.axon.bank.event.MoneyWithdrawnEvent
-import br.com.zup.axon.bank.event.TransferMoneyRequestedEvent
-import br.com.zup.axon.bank.event.WithdrawMoneyCommand
+import br.com.zup.axon.bank.domain.account.DepositMoneyCommand
+import br.com.zup.axon.bank.domain.account.Money
+import br.com.zup.axon.bank.domain.account.MoneyDepositRejectEvent
+import br.com.zup.axon.bank.domain.account.MoneyDepositedEvent
+import br.com.zup.axon.bank.domain.account.MoneyRefundedEvent
+import br.com.zup.axon.bank.domain.account.MoneyWithdrawRejectedEvent
+import br.com.zup.axon.bank.domain.account.MoneyWithdrawnEvent
+import br.com.zup.axon.bank.domain.account.RefundMoneyCommand
+import br.com.zup.axon.bank.domain.account.WithdrawMoneyCommand
+import br.com.zup.axon.bank.domain.transfer.CompleteMoneyTransferCommand
+import br.com.zup.axon.bank.domain.transfer.FailMoneyTransferCommand
+import br.com.zup.axon.bank.domain.transfer.TransferMoneyRequestedEvent
 import org.axonframework.test.saga.SagaTestFixture
 import org.junit.Before
 import org.junit.Test
@@ -84,10 +86,10 @@ class BankTransferSagaTest {
                 .published(TransferMoneyRequestedEvent(transactionId, sourceId, destinationId, amount))
 
                 .whenAggregate(sourceId)
-                .publishes(MoneyWithdrawRejectedEvent(sourceId, transactionId, amount, 100))
+                    .publishes(MoneyWithdrawRejectedEvent(sourceId, transactionId, amount, 100))
 
                 .expectActiveSagas(0)
-                .expectDispatchedCommands(FailMoneyTransferCommand(transactionId))
+                    .expectDispatchedCommands(FailMoneyTransferCommand(transactionId))
     }
 
     @Test
@@ -107,11 +109,11 @@ class BankTransferSagaTest {
                     .publishes(MoneyDepositRejectEvent(destinationId, transactionId, amount))
 
                 .expectActiveSagas(1)
-                .expectDispatchedCommands(DepositMoneyCommand(sourceId, transactionId, amount))
+                .expectDispatchedCommands(RefundMoneyCommand(sourceId, transactionId, amount))
     }
 
     @Test
-    fun `on refund deposit`() {
+    fun `on refund money`() {
         val transactionId = "txt1"
         val sourceId =  "acc1"
         val destinationId =  "acc2"
@@ -127,7 +129,7 @@ class BankTransferSagaTest {
                     .published(MoneyDepositRejectEvent(destinationId, transactionId, amount))
 
                 .whenAggregate(sourceId)
-                    .publishes(MoneyDepositedEvent(sourceId, transactionId, amount, 100, tenant))
+                    .publishes(MoneyRefundedEvent(sourceId, transactionId, amount, 100))
 
                 .expectActiveSagas(0)
                 .expectDispatchedCommands(FailMoneyTransferCommand(transactionId))

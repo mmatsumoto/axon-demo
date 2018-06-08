@@ -1,8 +1,8 @@
-package br.com.zup.axon.bank.view.jpa
+package br.com.zup.axon.bank.view.jpa.transfer
 
-import br.com.zup.axon.bank.event.MoneyTransferCompletedEvent
-import br.com.zup.axon.bank.event.MoneyTransferFailedEvent
-import br.com.zup.axon.bank.event.TransferMoneyRequestedEvent
+import br.com.zup.axon.bank.domain.transfer.MoneyTransferCompletedEvent
+import br.com.zup.axon.bank.domain.transfer.MoneyTransferFailedEvent
+import br.com.zup.axon.bank.domain.transfer.TransferMoneyRequestedEvent
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.EventHandler
 import org.slf4j.Logger
@@ -21,7 +21,7 @@ class BankTransferListener(private val bankTransferService: BankTransferService)
         logger.info("$event received at ${this.javaClass.name}")
 
         bankTransferService.start(event)
-                .also { logger.info("$it saved at jpa view") }
+                .also(logEvent())
     }
 
     @EventHandler
@@ -29,7 +29,7 @@ class BankTransferListener(private val bankTransferService: BankTransferService)
         logger.info("$event received at ${this.javaClass.name}")
 
         bankTransferService.fail(event)
-                .also { logger.info("$it saved at jpa view") }
+                .also(logEvent())
     }
 
     @EventHandler
@@ -37,8 +37,11 @@ class BankTransferListener(private val bankTransferService: BankTransferService)
         logger.info("$event received at ${this.javaClass.name}")
 
         bankTransferService.complete(event)
-                .also { logger.info("$it saved at jpa view") }
+                .also(logEvent())
     }
+
+    private fun logEvent(): (BankTransferEntity?) -> Unit =
+            { logger.info("$it saved at jpa view") }
 
     companion object {
         const val GROUP_NAME = "BankTransferGroup"

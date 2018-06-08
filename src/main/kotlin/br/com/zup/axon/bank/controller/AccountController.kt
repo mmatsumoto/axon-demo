@@ -1,15 +1,18 @@
 package br.com.zup.axon.bank.controller
 
 import br.com.zup.axon.bank.aggregate.Account
-import br.com.zup.axon.bank.aggregate.AccountId
 import br.com.zup.axon.bank.aggregate.Gender
-import br.com.zup.axon.bank.aggregate.Money
-import br.com.zup.axon.bank.event.CloseAccountCommand
-import br.com.zup.axon.bank.event.CreateAccountCommand
-import br.com.zup.axon.bank.event.DepositMoneyCommand
-import br.com.zup.axon.bank.event.RequestTransferMoneyCommand
-import br.com.zup.axon.bank.event.WithdrawMoneyCommand
-import br.com.zup.axon.bank.view.jpa.AccountService
+import br.com.zup.axon.bank.controller.form.AccountRequest
+import br.com.zup.axon.bank.controller.representation.IdRepresentation
+import br.com.zup.axon.bank.controller.representation.TransactionRepresentation
+import br.com.zup.axon.bank.domain.account.AccountId
+import br.com.zup.axon.bank.domain.account.CloseAccountCommand
+import br.com.zup.axon.bank.domain.account.CreateAccountCommand
+import br.com.zup.axon.bank.domain.account.DepositMoneyCommand
+import br.com.zup.axon.bank.domain.account.Money
+import br.com.zup.axon.bank.domain.account.WithdrawMoneyCommand
+import br.com.zup.axon.bank.domain.transfer.RequestTransferMoneyCommand
+import br.com.zup.axon.bank.view.jpa.account.AccountService
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -32,12 +35,10 @@ import java.util.*
 class AccountController(private val commandGateway: CommandGateway,
                         private val accountService: AccountService) {
 
-
     @PostMapping
     fun create(@RequestBody account: AccountRequest): IdRepresentation =
             commandGateway.sendAndWait<AccountId>(
-                    CreateAccountCommand(Account.newId(), account.name, account.gender
-                            ?: Gender.UNKNOWN, account.money))
+                    CreateAccountCommand(Account.newId(), account.name, account.gender ?: Gender.UNKNOWN, account.money))
                     .let(::IdRepresentation)
 
 
@@ -67,12 +68,11 @@ class AccountController(private val commandGateway: CommandGateway,
                 .let(::TransactionRepresentation)
     }
 
-
     @GetMapping
     fun findAll() = accountService.findAll()
 
     @GetMapping(path = ["{id}"])
-    fun findOne(@PathVariable id: AccountId) =
-            accountService.findOne(id)?.let { ResponseEntity(it, HttpStatus.OK) }
+    fun findOne(@PathVariable id: AccountId) = accountService.findOne(id)
+            ?.let { ResponseEntity(it, HttpStatus.OK) }
                     ?: ResponseEntity(HttpStatus.NOT_FOUND)
 }

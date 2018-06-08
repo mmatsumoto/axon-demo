@@ -1,15 +1,18 @@
 package br.com.zup.axon.bank.aggregate
 
-import br.com.zup.axon.bank.event.CompleteMoneyTransferCommand
-import br.com.zup.axon.bank.event.FailMoneyTransferCommand
-import br.com.zup.axon.bank.event.MoneyTransferCompletedEvent
-import br.com.zup.axon.bank.event.MoneyTransferFailedEvent
-import br.com.zup.axon.bank.event.RequestTransferMoneyCommand
-import br.com.zup.axon.bank.event.TransferMoneyRequestedEvent
+import br.com.zup.axon.bank.domain.account.AccountId
+import br.com.zup.axon.bank.domain.account.Money
+import br.com.zup.axon.bank.domain.transfer.CompleteMoneyTransferCommand
+import br.com.zup.axon.bank.domain.transfer.FailMoneyTransferCommand
+import br.com.zup.axon.bank.domain.transfer.MoneyTransferCompletedEvent
+import br.com.zup.axon.bank.domain.transfer.MoneyTransferFailedEvent
+import br.com.zup.axon.bank.domain.transfer.RequestTransferMoneyCommand
+import br.com.zup.axon.bank.domain.transfer.TransferMoneyRequestedEvent
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.commandhandling.model.AggregateIdentifier
 import org.axonframework.commandhandling.model.AggregateLifecycle.apply
 import org.axonframework.eventsourcing.EventSourcingHandler
+import org.axonframework.serialization.Revision
 import org.axonframework.spring.stereotype.Aggregate
 
 enum class BankTransferStatus {
@@ -17,7 +20,8 @@ enum class BankTransferStatus {
 }
 
 @Aggregate
-final class BankTransfer constructor(){
+@Revision("1.0")
+final class BankTransfer constructor() {
 
     @AggregateIdentifier
     var transactionId: String? = null
@@ -29,18 +33,18 @@ final class BankTransfer constructor(){
     var destinationId: AccountId? = null
         private set
 
-    var value: Money? = null
+    var amount: Money? = null
         private set
 
     var status: BankTransferStatus? = null
         private set
 
     @CommandHandler
-    constructor(command: RequestTransferMoneyCommand): this() {
+    constructor(command: RequestTransferMoneyCommand) : this() {
         apply(TransferMoneyRequestedEvent(command.transactionId,
-                                          command.sourceId,
-                                          command.destinationId,
-                                          command.amount))
+                                                             command.sourceId,
+                                                             command.destinationId,
+                                                             command.amount))
     }
 
     @CommandHandler
@@ -58,7 +62,7 @@ final class BankTransfer constructor(){
         this.transactionId = event.transactionId
         this.sourceId = event.sourceId
         this.destinationId = event.destinationId
-        this.value = event.amount
+        this.amount = event.amount
         this.status = BankTransferStatus.STARTED
     }
 

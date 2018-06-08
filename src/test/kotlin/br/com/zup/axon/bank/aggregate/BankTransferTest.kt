@@ -1,11 +1,11 @@
 package br.com.zup.axon.bank.aggregate
 
-import br.com.zup.axon.bank.event.CompleteMoneyTransferCommand
-import br.com.zup.axon.bank.event.FailMoneyTransferCommand
-import br.com.zup.axon.bank.event.MoneyTransferCompletedEvent
-import br.com.zup.axon.bank.event.MoneyTransferFailedEvent
-import br.com.zup.axon.bank.event.RequestTransferMoneyCommand
-import br.com.zup.axon.bank.event.TransferMoneyRequestedEvent
+import br.com.zup.axon.bank.domain.transfer.CompleteMoneyTransferCommand
+import br.com.zup.axon.bank.domain.transfer.FailMoneyTransferCommand
+import br.com.zup.axon.bank.domain.transfer.MoneyTransferCompletedEvent
+import br.com.zup.axon.bank.domain.transfer.MoneyTransferFailedEvent
+import br.com.zup.axon.bank.domain.transfer.RequestTransferMoneyCommand
+import br.com.zup.axon.bank.domain.transfer.TransferMoneyRequestedEvent
 import org.axonframework.test.aggregate.AggregateTestFixture
 import org.junit.Before
 import org.junit.Test

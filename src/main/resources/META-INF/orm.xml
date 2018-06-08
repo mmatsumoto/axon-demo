@@ -3,15 +3,16 @@
 <entity-mappings
         xmlns="http://java.sun.com/xml/ns/persistence/orm"
         version="2.0">
-    <mapped-superclass class="org.axonframework.eventsourcing.eventstore.AbstractSequencedDomainEventEntry" access="FIELD">
-        <attributes>
-            <id name="globalIndex">
-                <column name="global_index"/>
-                <generated-value generator="generator" strategy="SEQUENCE"/>
-                <sequence-generator name="generator" sequence-name="domain_event_entry_seq" allocation-size="1"/>
-            </id>
-        </attributes>
-    </mapped-superclass>
+    <!--<mapped-superclass class="org.axonframework.eventsourcing.eventstore.AbstractSequencedDomainEventEntry" access="FIELD">-->
+        <!--<attributes>-->
+            <!--<id name="globalIndex">-->
+                <!--<column name="global_index"/>-->
+                <!--<generated-value generator="generator" strategy="SEQUENCE"/>-->
+                <!--<sequence-generator name="generator" -->
+                                    <!--sequence-name="domain_event_entry_seq" allocation-size="1"/>-->
+            <!--</id>-->
+        <!--</attributes>-->
+    <!--</mapped-superclass>-->
 
     <mapped-superclass class="org.axonframework.eventsourcing.eventstore.AbstractEventEntry" access="FIELD">
         <attributes>
@@ -23,6 +24,7 @@
             </basic>
         </attributes>
     </mapped-superclass>
+
 
     <mapped-superclass class="org.axonframework.eventhandling.tokenstore.AbstractTokenEntry" access="FIELD">
         <attributes>
@@ -40,5 +42,15 @@
         </attributes>
 
     </mapped-superclass>
+
+    <entity class="org.axonframework.eventhandling.saga.repository.jpa.AssociationValueEntry" access="FIELD">
+        <attributes>
+            <id name="id">
+                <column name="id"/>
+                <generated-value generator="generator" strategy="SEQUENCE"/>
+                <sequence-generator name="generator" sequence-name="association_value_entry_seq" allocation-size="1"/>
+            </id>
+        </attributes>
+    </entity>
 
 </entity-mappings>

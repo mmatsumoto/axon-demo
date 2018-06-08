@@ -1,6 +1,6 @@
-package br.com.zup.axon.bank.view.jpa
+package br.com.zup.axon.bank.view.jpa.account
 
-import br.com.zup.axon.bank.aggregate.AccountId
+import br.com.zup.axon.bank.domain.account.AccountId
 import org.springframework.data.jpa.repository.JpaRepository
 
 

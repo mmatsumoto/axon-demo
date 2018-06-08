@@ -1,19 +1,25 @@
 package br.com.zup.axon.bank.aggregate
 
-import br.com.zup.axon.bank.event.AccountCloseRejectEvent
-import br.com.zup.axon.bank.event.AccountClosedEvent
-import br.com.zup.axon.bank.event.AccountCreatedEvent
-import br.com.zup.axon.bank.event.CloseAccountCommand
-import br.com.zup.axon.bank.event.CreateAccountCommand
-import br.com.zup.axon.bank.event.DepositMoneyCommand
-import br.com.zup.axon.bank.event.MoneyDepositRejectEvent
-import br.com.zup.axon.bank.event.MoneyDepositedEvent
-import br.com.zup.axon.bank.event.MoneyWithdrawRejectedEvent
-import br.com.zup.axon.bank.event.MoneyWithdrawnEvent
-import br.com.zup.axon.bank.event.WithdrawMoneyCommand
+import br.com.zup.axon.bank.domain.account.AccountCloseRejectEvent
+import br.com.zup.axon.bank.domain.account.AccountClosedEvent
+import br.com.zup.axon.bank.domain.account.AccountCreatedEvent
+import br.com.zup.axon.bank.domain.account.AccountId
+import br.com.zup.axon.bank.domain.account.AccountName
+import br.com.zup.axon.bank.domain.account.CloseAccountCommand
+import br.com.zup.axon.bank.domain.account.CreateAccountCommand
+import br.com.zup.axon.bank.domain.account.DepositMoneyCommand
+import br.com.zup.axon.bank.domain.account.Money
+import br.com.zup.axon.bank.domain.account.MoneyDepositRejectEvent
+import br.com.zup.axon.bank.domain.account.MoneyDepositedEvent
+import br.com.zup.axon.bank.domain.account.MoneyRefundRejectEvent
+import br.com.zup.axon.bank.domain.account.MoneyRefundedEvent
+import br.com.zup.axon.bank.domain.account.MoneyWithdrawRejectedEvent
+import br.com.zup.axon.bank.domain.account.MoneyWithdrawnEvent
+import br.com.zup.axon.bank.domain.account.RefundMoneyCommand
+import br.com.zup.axon.bank.domain.account.TransactionId
+import br.com.zup.axon.bank.domain.account.WithdrawMoneyCommand
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.commandhandling.model.AggregateIdentifier
-import org.axonframework.commandhandling.model.AggregateLifecycle
 import org.axonframework.commandhandling.model.AggregateLifecycle.apply
 import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.messaging.MetaData
@@ -23,11 +29,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
-typealias AccountId = String
-typealias TransactionId = String
-typealias AccountName = String
-typealias Money = Long
-typealias Tenant = String
 
 enum class Gender {
     MALE, FEMALE, UNKNOWN
@@ -65,53 +66,53 @@ final class Account constructor() {
                                   command.name,
                                   command.gender,
                                   command.money,
-                                  metaData["tenant"] as String
+                                  metaData["tenant"] as String // this tenant is being added by an Interceptor. check AxonConfiguration
                                  ), metaData)
     }
 
     @CommandHandler
-    fun on(c: DepositMoneyCommand, metaData: MetaData): TransactionId =
-            if (this.isActive()) {
-                MoneyDepositedEvent(c.accountId, c.transactionId, c.money, this.balance + c.money, metaData["tenant"] as String)
-                        .apply { AggregateLifecycle.apply(this, metaData) }
-                        .transactionId
-            } else {
-                MoneyDepositRejectEvent(c.accountId, c.transactionId, c.money)
-                        .apply { AggregateLifecycle.apply(this, metaData) }
-                        .transactionId
-            }
-
-    @CommandHandler
-    fun on(c: WithdrawMoneyCommand, metaData: MetaData): TransactionId =
-            if (canWithdraw(c.money)) {
-                MoneyWithdrawnEvent(c.accountId, c.transactionId, c.money, this.balance - c.money)
-                        .apply { AggregateLifecycle.apply(this, metaData) }
-                        .transactionId
-            } else {
-                MoneyWithdrawRejectedEvent(c.accountId, c.transactionId, c.money, this.balance)
-                        .apply { AggregateLifecycle.apply(this, metaData) }
-                        .transactionId
-            }
-
-    private fun canWithdraw(money: Money) = this.isActive() && this.balance >= money
-
-    @CommandHandler
-    fun on(command: CloseAccountCommand): AccountId {
-        if (this.balance != 0L) {
-            apply(AccountCloseRejectEvent(command.id, this.balance))
-        } else {
-            apply(AccountClosedEvent(command.id))
+    fun on(cmd: DepositMoneyCommand, metaData: MetaData): TransactionId {
+        when (this.isActive()) {
+            true -> deposit(cmd, metaData)
+            else -> apply(MoneyDepositRejectEvent(cmd.accountId, cmd.transactionId, cmd.money))
         }
-        return command.id
+        return cmd.transactionId
+    }
+
+    @CommandHandler
+    fun on(cmd: WithdrawMoneyCommand): TransactionId {
+        when (canWithdraw(cmd.money)) {
+            true -> apply(MoneyWithdrawnEvent(cmd.accountId, cmd.transactionId, cmd.money, this.balance - cmd.money))
+            else -> apply(MoneyWithdrawRejectedEvent(cmd.accountId, cmd.transactionId, cmd.money, this.balance))
+        }
+        return cmd.transactionId
+    }
+
+    @CommandHandler
+    fun on(cmd: RefundMoneyCommand): TransactionId {
+        when (this.isActive()) {
+            true -> apply(MoneyRefundedEvent(cmd.accountId, cmd.transactionId, cmd.money, this.balance + cmd.money))
+            else -> apply(MoneyRefundRejectEvent(cmd.accountId, cmd.transactionId, cmd.money))
+        }
+        return cmd.transactionId
+    }
+
+    @CommandHandler
+    fun on(cmd: CloseAccountCommand): AccountId {
+        when (canClose()) {
+            true -> apply(AccountClosedEvent(cmd.id))
+            else -> apply(AccountCloseRejectEvent(cmd.id, this.balance))
+                    .also { log.info("Account $id can`t be closed. balance $balance") }
+        }
+        return cmd.id
     }
 
     @EventSourcingHandler
     fun on(e: AccountCreatedEvent) {
-//        log.info("Aggregate Account on: $e")
         this.id = e.id
         this.name = e.name
         this.balance = e.balance
-        if (e.name.contains( " ")) {
+        if (e.name.contains(" ")) {
             this.lastName = e.name.substringAfter(" ")
         }
         this.status = AccountStatus.ACTIVE
@@ -119,6 +120,11 @@ final class Account constructor() {
 
     @EventSourcingHandler
     fun on(e: MoneyDepositedEvent) {
+        this.balance = e.balance
+    }
+
+    @EventSourcingHandler
+    fun on(e: MoneyRefundedEvent) {
         this.balance = e.balance
     }
 
@@ -132,23 +138,55 @@ final class Account constructor() {
         this.status = AccountStatus.CLOSED
     }
 
-    private fun isActive() = this.status == AccountStatus.ACTIVE
+    @EventSourcingHandler
+    fun on(@SuppressWarnings("UNUSED_PARAMETER") e: MoneyDepositRejectEvent) {
+        log.info("Deposit reject: $e")
+    }
 
+    @EventSourcingHandler
+    fun on(@SuppressWarnings("UNUSED_PARAMETER") e: MoneyWithdrawRejectedEvent) {
+        log.info("Withdraw reject: $e")
+    }
 
-    // from snapshot (not necessary)
+    //this is not necessary, but if you want to, this is how you apply the snapshot by yourself
 //    @EventHandler
 //    fun on(account: Account) {
 //        log.info("Aggregate reloaded from snapshot Account on: $account")
 //        this.id = account.id
 //        this.name = account.name
-//        this.balance = account.balance
-//        this.lastName = account.lastName
-//        this.status = account.status
+//     // etc
 //    }
 
-    override fun toString(): String {
-        return "Account(id=$id, name=$name, balance=$balance)"
+    private fun deposit(cmd: DepositMoneyCommand, metaData: MetaData) {
+        when (cmd.money == 666L) { // this magic number is used to simulate a command that was never succeed
+            true -> throw IllegalArgumentException("666 is a baaaaad number!")
+            else -> apply(MoneyDepositedEvent(cmd.accountId,
+                                              cmd.transactionId,
+                                              cmd.money,
+                                              this.balance + cmd.money,
+                                              metaData["tenant"] as String))
+        }
     }
+
+    private fun canWithdraw(money: Money) = this.isActive() && this.balance >= money
+
+    private fun isActive() = this.status == AccountStatus.ACTIVE
+
+    private fun canClose() = this.balance == 0L
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Account
+
+        if (id != other.id) return false
+
+        return true
+    }
+    override fun hashCode(): Int = id?.hashCode() ?: 0
+    override fun toString(): String =
+            "Account(id=$id, name=$name, balance=$balance, lastName=$lastName, status=$status)"
 
     companion object {
         fun newId(): AccountId = UUID.randomUUID().toString()

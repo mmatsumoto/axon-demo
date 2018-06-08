@@ -18,7 +18,7 @@ interface AccountMemoryService {
 
 @Service
 class AccountMemoryServiceImpl(private val config: EventHandlingConfiguration,
-                               private val jdbcTemplate: JdbcTemplate): AccountMemoryService {
+                               private val jdbcTemplate: JdbcTemplate) : AccountMemoryService {
 
     private val events = mutableMapOf<String,
             MutableMap<String, MutableList<Any>>>()
@@ -33,7 +33,6 @@ class AccountMemoryServiceImpl(private val config: EventHandlingConfiguration,
         events.clear()
     }
 
-
     override fun registerTrackingProcessor() {
         config.registerTrackingProcessor(AccountMemoryListener.GROUP_NAME)
     }
@@ -43,8 +42,11 @@ class AccountMemoryServiceImpl(private val config: EventHandlingConfiguration,
     }
 
     override fun getEvents(): Map<String, Map<String, List<Any>>> = events
-            .map { it.key to it.value.toMap()
-                    .map { it.key to it.value.toList() }.toMap() }
+            .map {
+                it.key to it.value
+                        .map { it.key to it.value.toList() }
+                        .toMap()
+            }
             .toMap()
 
     override fun stop() {
@@ -56,10 +58,9 @@ class AccountMemoryServiceImpl(private val config: EventHandlingConfiguration,
             { it.name == AccountMemoryListener.GROUP_NAME }
 
     override fun start() {
-        config.processors.filter { it.name == AccountMemoryListener.GROUP_NAME }
+        config.processors.filter(filterByGroup())
                 .forEach { it.start() }
     }
-
 
 
 }

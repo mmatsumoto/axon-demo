@@ -1,8 +1,8 @@
-package br.com.zup.axon.bank.view.jpa
+package br.com.zup.axon.bank.view.jpa.transfer
 
-import br.com.zup.axon.bank.aggregate.AccountId
 import br.com.zup.axon.bank.aggregate.BankTransferStatus
-import br.com.zup.axon.bank.aggregate.Money
+import br.com.zup.axon.bank.domain.account.AccountId
+import br.com.zup.axon.bank.domain.account.Money
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
