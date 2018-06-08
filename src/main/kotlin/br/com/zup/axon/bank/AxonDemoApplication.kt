@@ -5,11 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 
 
 @SpringBootApplication
-class SagaApplication
+class AxonDemoApplication
 
 
 fun main(args: Array<String>) {
-    SpringApplication.run(SagaApplication::class.java, *args)
+    SpringApplication.run(AxonDemoApplication::class.java, *args)
 }
 
 
