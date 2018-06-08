@@ -1,4 +1,4 @@
-### Axonframework Bank Demo Applicatin (Kotlin)
+### Axonframework Bank Demo Application (Kotlin)
     
     * Json Serialize 
     * Upcast
