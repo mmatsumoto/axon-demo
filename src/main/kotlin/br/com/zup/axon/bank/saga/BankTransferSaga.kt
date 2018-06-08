@@ -9,6 +9,7 @@ import br.com.zup.axon.bank.domain.account.MoneyRefundedEvent
 import br.com.zup.axon.bank.domain.account.MoneyWithdrawRejectedEvent
 import br.com.zup.axon.bank.domain.account.MoneyWithdrawnEvent
 import br.com.zup.axon.bank.domain.account.RefundMoneyCommand
+import br.com.zup.axon.bank.domain.account.TransactionId
 import br.com.zup.axon.bank.domain.account.WithdrawMoneyCommand
 import br.com.zup.axon.bank.domain.transfer.CompleteMoneyTransferCommand
 import br.com.zup.axon.bank.domain.transfer.FailMoneyTransferCommand
@@ -73,7 +74,7 @@ final class BankTransferSaga {
 
         commandGateway.send(WithdrawMoneyCommand(event.sourceId, event.transactionId, event.amount),
                             object : CommandCallback<WithdrawMoneyCommand, AccountId> {
-                                override fun onSuccess(message: CommandMessage<out WithdrawMoneyCommand>, result: AccountId) {
+                                override fun onSuccess(message: CommandMessage<out WithdrawMoneyCommand>, result: TransactionId?) {
                                     logger.info("Command executed successfully: {}", message.commandName)
                                 }
 
@@ -94,11 +95,11 @@ final class BankTransferSaga {
 
         commandGateway.send(DepositMoneyCommand(this.destinationId, event.transactionId, event.money),
                             object : CommandCallback<DepositMoneyCommand, AccountId> {
-                                override fun onSuccess(message: CommandMessage<out DepositMoneyCommand>, result: AccountId) {
+                                override fun onSuccess(message: CommandMessage<out DepositMoneyCommand>, result: TransactionId?) {
                                     logger.info("Command executed successfully: {}", message.commandName)
                                 }
 
-                                override fun onFailure(message: CommandMessage<out DepositMoneyCommand>, cause: Throwable) {
+                                override fun onFailure(message: CommandMessage<out DepositMoneyCommand>, cause: Throwable?) {
                                     logger.warn("Command resulted in exception: {}", message.commandName, cause)
                                     if (cause is AggregateNotFoundException) {
                                         commandGateway.send(RefundMoneyCommand(sourceId,
