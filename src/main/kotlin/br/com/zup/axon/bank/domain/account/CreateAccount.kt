@@ -22,4 +22,5 @@ data class AccountCreatedEvent @JsonCreator constructor(
 
 @Revision("1.0")
 data class AccountNotFoundEvent @JsonCreator constructor(
-        @JsonProperty("id") val id: AccountId)
+        @JsonProperty("id") val id: AccountId,
+        @JsonProperty("transactionId") val transactionId: TransactionId)

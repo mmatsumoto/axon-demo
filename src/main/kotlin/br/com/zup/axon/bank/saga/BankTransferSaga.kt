@@ -1,6 +1,7 @@
 package br.com.zup.axon.bank.saga
 
 import br.com.zup.axon.bank.domain.account.AccountId
+import br.com.zup.axon.bank.domain.account.AccountNotFoundEvent
 import br.com.zup.axon.bank.domain.account.DepositMoneyCommand
 import br.com.zup.axon.bank.domain.account.Money
 import br.com.zup.axon.bank.domain.account.MoneyDepositRejectEvent
@@ -18,7 +19,6 @@ import org.axonframework.commandhandling.CommandCallback
 import org.axonframework.commandhandling.CommandMessage
 import org.axonframework.commandhandling.callbacks.LoggingCallback
 import org.axonframework.commandhandling.gateway.CommandGateway
-import org.axonframework.commandhandling.model.AggregateNotFoundException
 import org.axonframework.eventhandling.saga.EndSaga
 import org.axonframework.eventhandling.saga.SagaEventHandler
 import org.axonframework.eventhandling.saga.SagaLifecycle
@@ -35,6 +35,10 @@ import java.time.Duration
 @Saga
 @Revision("1.0")
 final class BankTransferSaga {
+
+    companion object {
+        const val BANK_TRANSFER_ASSOCIATION_PROPERTY = "transactionId"
+    }
 
     private val logger = LoggerFactory.getLogger(LoggingCallback::class.java)
 
@@ -64,7 +68,7 @@ final class BankTransferSaga {
     var timeoutToken: ScheduleToken? = null
 
     @StartSaga
-    @SagaEventHandler(associationProperty = "transactionId")
+    @SagaEventHandler(associationProperty = BANK_TRANSFER_ASSOCIATION_PROPERTY)
     fun on(event: TransferMoneyRequestedEvent) {
         this.transactionId = event.transactionId
         this.sourceId = event.sourceId
@@ -72,24 +76,10 @@ final class BankTransferSaga {
         this.amount = event.amount
         this.withdrawn = false
 
-        commandGateway.send(WithdrawMoneyCommand(event.sourceId, event.transactionId, event.amount),
-                            object : CommandCallback<WithdrawMoneyCommand, AccountId> {
-                                override fun onSuccess(message: CommandMessage<out WithdrawMoneyCommand>, result: TransactionId?) {
-                                    logger.info("Command executed successfully: {}", message.commandName)
-                                }
-
-                                override fun onFailure(message: CommandMessage<out WithdrawMoneyCommand>, cause: Throwable) {
-                                    logger.warn("Command resulted in exception: {}", message.commandName, cause)
-                                    if (cause is AggregateNotFoundException) {
-                                        commandGateway.send(FailMoneyTransferCommand(event.transactionId), LoggingCallback.INSTANCE)
-                                        SagaLifecycle.end()
-                                    }
-                                }
-                            })
-
+        commandGateway.send(WithdrawMoneyCommand(event.sourceId, event.transactionId, event.amount), LoggingCallback.INSTANCE)
     }
 
-    @SagaEventHandler(associationProperty = "transactionId")
+    @SagaEventHandler(associationProperty = BANK_TRANSFER_ASSOCIATION_PROPERTY)
     fun on(event: MoneyWithdrawnEvent) {
         this.withdrawn = true
 
@@ -101,19 +91,27 @@ final class BankTransferSaga {
 
                                 override fun onFailure(message: CommandMessage<out DepositMoneyCommand>, cause: Throwable?) {
                                     logger.warn("Command resulted in exception: {}", message.commandName, cause)
-                                    if (cause is AggregateNotFoundException) {
-                                        commandGateway.send(RefundMoneyCommand(sourceId,
-                                                                               event.transactionId,
-                                                                               event.money),
-                                                            LoggingCallback.INSTANCE)
-                                    }
                                 }
                             })
 
         scheduleEventTimeout(this.destinationId, event.transactionId, event.money)
     }
 
-    @SagaEventHandler(associationProperty = "transactionId")
+
+    @SagaEventHandler(associationProperty = BANK_TRANSFER_ASSOCIATION_PROPERTY)
+    fun on(event: AccountNotFoundEvent) {
+        when {
+            event.id == this.sourceId -> {
+                commandGateway.send(FailMoneyTransferCommand(event.transactionId), LoggingCallback.INSTANCE)
+                SagaLifecycle.end()
+            }
+            event.id == this.destinationId ->
+                commandGateway.send(RefundMoneyCommand(this.sourceId, event.transactionId, this.amount), LoggingCallback.INSTANCE)
+
+        }
+    }
+
+    @SagaEventHandler(associationProperty = BANK_TRANSFER_ASSOCIATION_PROPERTY)
     fun on(event: MoneyDepositedEvent) {
         if (this.withdrawn) {
             cancelTimeoutSchedule()
@@ -123,19 +121,19 @@ final class BankTransferSaga {
     }
 
     @EndSaga
-    @SagaEventHandler(associationProperty = "transactionId")
+    @SagaEventHandler(associationProperty = BANK_TRANSFER_ASSOCIATION_PROPERTY)
     fun on(event: MoneyWithdrawRejectedEvent) {
         commandGateway.send(FailMoneyTransferCommand(event.transactionId), LoggingCallback.INSTANCE)
     }
 
-    @SagaEventHandler(associationProperty = "transactionId")
+    @SagaEventHandler(associationProperty = BANK_TRANSFER_ASSOCIATION_PROPERTY)
     fun on(event: MoneyDepositRejectEvent) {
         commandGateway.send(RefundMoneyCommand(this.sourceId, event.transactionId, event.money), LoggingCallback.INSTANCE)
         scheduleEventTimeout(this.destinationId, event.transactionId, event.money)
     }
 
     @EndSaga
-    @SagaEventHandler(associationProperty = "transactionId")
+    @SagaEventHandler(associationProperty = BANK_TRANSFER_ASSOCIATION_PROPERTY)
     fun on(event: MoneyRefundedEvent) {
         cancelTimeoutSchedule()
         commandGateway.send(FailMoneyTransferCommand(event.transactionId), LoggingCallback.INSTANCE)

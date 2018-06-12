@@ -5,7 +5,6 @@ import br.com.zup.axon.bank.domain.account.AccountClosedEvent
 import br.com.zup.axon.bank.domain.account.AccountCreatedEvent
 import br.com.zup.axon.bank.domain.account.AccountId
 import br.com.zup.axon.bank.domain.account.AccountName
-import br.com.zup.axon.bank.domain.account.DepositMoneyCommand
 import br.com.zup.axon.bank.domain.account.Money
 import br.com.zup.axon.bank.domain.account.MoneyDepositRejectEvent
 import br.com.zup.axon.bank.domain.account.MoneyDepositedEvent
@@ -15,7 +14,6 @@ import br.com.zup.axon.bank.domain.account.MoneyWithdrawRejectedEvent
 import br.com.zup.axon.bank.domain.account.MoneyWithdrawnEvent
 import br.com.zup.axon.bank.domain.account.RefundMoneyCommand
 import br.com.zup.axon.bank.domain.account.TransactionId
-import br.com.zup.axon.bank.domain.account.WithdrawMoneyCommand
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.commandhandling.model.AggregateIdentifier
@@ -59,36 +57,32 @@ final class Account constructor() {
     var status: AccountStatus = AccountStatus.ACTIVE
         private set
 
-//    @CommandHandler
-//    constructor(command: CreateAccountCommand, metaData: MetaData) : this() {
-//        apply(AccountCreatedEvent(command.id,
-//                                  command.name,
-//                                  command.gender,
-//                                  command.money,
-//                                  metaData["tenant"] as String // this tenant is being added by an Interceptor. check AxonConfiguration
-//                                 ), metaData)
-//    }
-
     constructor(id: AccountId, name: AccountName, gender: Gender, money: Money, metaData: MetaData) : this() {
         apply(AccountCreatedEvent(id, name, gender, money, metaData["tenant"] as String), metaData)
     }
 
-    @CommandHandler
-    fun on(cmd: DepositMoneyCommand, metaData: MetaData): TransactionId {
-        when (this.isActive()) {
-            true -> deposit(cmd, metaData)
-            else -> apply(MoneyDepositRejectEvent(cmd.accountId, cmd.transactionId, cmd.money))
+    fun withdraw(accountId: AccountId, transactionId: TransactionId, money: Money): TransactionId {
+        when (canWithdraw(money)) {
+            true -> apply(MoneyWithdrawnEvent(accountId, transactionId, money, this.balance - money))
+            else -> apply(MoneyWithdrawRejectedEvent(accountId, transactionId, money, this.balance))
         }
-        return cmd.transactionId
+        return transactionId
     }
 
-    @CommandHandler
-    fun on(cmd: WithdrawMoneyCommand): TransactionId {
-        when (canWithdraw(cmd.money)) {
-            true -> apply(MoneyWithdrawnEvent(cmd.accountId, cmd.transactionId, cmd.money, this.balance - cmd.money))
-            else -> apply(MoneyWithdrawRejectedEvent(cmd.accountId, cmd.transactionId, cmd.money, this.balance))
+    fun deposit(accountId: AccountId, transactionId: TransactionId, money: Money, metaData: MetaData): TransactionId {
+        when (this.isActive()) {
+            true -> tryDeposit(accountId, transactionId, money, metaData)
+            else -> apply(MoneyDepositRejectEvent(accountId, transactionId, money))
         }
-        return cmd.transactionId
+        return transactionId
+    }
+
+    private fun tryDeposit(accountId: AccountId, transactionId: TransactionId, money: Money, metaData: MetaData): TransactionId {
+        when (money == 666L) { // this magic number is used to simulate a command that was never succeed
+            true -> throw IllegalArgumentException("666 is a baaaaad number!")
+            else -> apply(MoneyDepositedEvent(accountId, transactionId, money, this.balance + money, metaData["tenant"] as String))
+        }
+        return transactionId
     }
 
     @CommandHandler
@@ -158,17 +152,6 @@ final class Account constructor() {
 //     // etc
 //    }
 
-    private fun deposit(cmd: DepositMoneyCommand, metaData: MetaData) {
-        when (cmd.money == 666L) { // this magic number is used to simulate a command that was never succeed
-            true -> throw IllegalArgumentException("666 is a baaaaad number!")
-            else -> apply(MoneyDepositedEvent(cmd.accountId,
-                                              cmd.transactionId,
-                                              cmd.money,
-                                              this.balance + cmd.money,
-                                              metaData["tenant"] as String))
-        }
-    }
-
     @JsonIgnore
     fun canWithdraw(money: Money) = this.isActive() && this.balance >= money
 
@@ -189,7 +172,7 @@ final class Account constructor() {
         return true
     }
 
-    override fun hashCode(): Int = id?.hashCode() ?: 0
+    override fun hashCode(): Int = id.hashCode()
     override fun toString(): String =
             "Account(id=$id, name=$name, balance=$balance, lastName=$lastName, status=$status)"
 

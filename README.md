@@ -4,6 +4,7 @@
     * Upcast
     * Snapshot
     * Custom Command Handler
+    * Dispatch Interceptors
     * GroupProcessors
     * Saga
     * EventScheduller (Quartz)
