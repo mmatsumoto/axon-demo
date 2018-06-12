@@ -5,8 +5,6 @@ import br.com.zup.axon.bank.domain.account.AccountClosedEvent
 import br.com.zup.axon.bank.domain.account.AccountCreatedEvent
 import br.com.zup.axon.bank.domain.account.AccountId
 import br.com.zup.axon.bank.domain.account.AccountName
-import br.com.zup.axon.bank.domain.account.CloseAccountCommand
-import br.com.zup.axon.bank.domain.account.CreateAccountCommand
 import br.com.zup.axon.bank.domain.account.DepositMoneyCommand
 import br.com.zup.axon.bank.domain.account.Money
 import br.com.zup.axon.bank.domain.account.MoneyDepositRejectEvent
@@ -18,6 +16,7 @@ import br.com.zup.axon.bank.domain.account.MoneyWithdrawnEvent
 import br.com.zup.axon.bank.domain.account.RefundMoneyCommand
 import br.com.zup.axon.bank.domain.account.TransactionId
 import br.com.zup.axon.bank.domain.account.WithdrawMoneyCommand
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.commandhandling.model.AggregateIdentifier
 import org.axonframework.commandhandling.model.AggregateLifecycle.apply
@@ -38,14 +37,15 @@ enum class AccountStatus {
     ACTIVE, CLOSED
 }
 
-@Aggregate(snapshotTriggerDefinition = "eventCountSnapshot")
+//@Aggregate(snapshotTriggerDefinition = "eventCountSnapshot")
+@Aggregate(repository = "customAccountRepository")
 @Revision("3.0")
 final class Account constructor() {
 
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     @AggregateIdentifier
-    var id: AccountId? = null
+    lateinit var id: AccountId
         private set
 
     var name: AccountName? = null
@@ -60,14 +60,18 @@ final class Account constructor() {
     var status: AccountStatus = AccountStatus.ACTIVE
         private set
 
-    @CommandHandler
-    constructor(command: CreateAccountCommand, metaData: MetaData) : this() {
-        apply(AccountCreatedEvent(command.id,
-                                  command.name,
-                                  command.gender,
-                                  command.money,
-                                  metaData["tenant"] as String // this tenant is being added by an Interceptor. check AxonConfiguration
-                                 ), metaData)
+//    @CommandHandler
+//    constructor(command: CreateAccountCommand, metaData: MetaData) : this() {
+//        apply(AccountCreatedEvent(command.id,
+//                                  command.name,
+//                                  command.gender,
+//                                  command.money,
+//                                  metaData["tenant"] as String // this tenant is being added by an Interceptor. check AxonConfiguration
+//                                 ), metaData)
+//    }
+
+    constructor(id: AccountId, name: AccountName, gender: Gender, money: Money, metaData: MetaData) : this() {
+        apply(AccountCreatedEvent(id, name, gender, money, metaData["tenant"] as String), metaData)
     }
 
     @CommandHandler
@@ -97,14 +101,12 @@ final class Account constructor() {
         return cmd.transactionId
     }
 
-    @CommandHandler
-    fun on(cmd: CloseAccountCommand): AccountId {
+    fun close() {
         when (canClose()) {
-            true -> apply(AccountClosedEvent(cmd.id))
-            else -> apply(AccountCloseRejectEvent(cmd.id, this.balance))
+            true -> apply(AccountClosedEvent(this.id))
+            else -> apply(AccountCloseRejectEvent(this.id, this.balance))
                     .also { log.info("Account $id can`t be closed. balance $balance") }
         }
-        return cmd.id
     }
 
     @EventSourcingHandler
@@ -168,11 +170,14 @@ final class Account constructor() {
         }
     }
 
-    private fun canWithdraw(money: Money) = this.isActive() && this.balance >= money
+    @JsonIgnore
+    fun canWithdraw(money: Money) = this.isActive() && this.balance >= money
 
-    private fun isActive() = this.status == AccountStatus.ACTIVE
+    @JsonIgnore
+    fun isActive() = this.status == AccountStatus.ACTIVE
 
-    private fun canClose() = this.balance == 0L
+    @JsonIgnore
+    fun canClose() = this.balance == 0L
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -184,6 +189,7 @@ final class Account constructor() {
 
         return true
     }
+
     override fun hashCode(): Int = id?.hashCode() ?: 0
     override fun toString(): String =
             "Account(id=$id, name=$name, balance=$balance, lastName=$lastName, status=$status)"

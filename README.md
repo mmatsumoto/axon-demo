@@ -3,6 +3,7 @@
     * Json Serialize 
     * Upcast
     * Snapshot
+    * Custom Command Handler
     * GroupProcessors
     * Saga
     * EventScheduller (Quartz)

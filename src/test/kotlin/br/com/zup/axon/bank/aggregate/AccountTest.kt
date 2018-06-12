@@ -26,7 +26,9 @@ class AccountTest {
 
     @Before
     fun setUp() {
-        fixture = AggregateTestFixture(Account::class.java)
+        fixture = AggregateTestFixture(Account::class.java).apply {
+            registerAnnotatedCommandHandler(AccountCommandHandler(repository, eventBus))
+        }
     }
 
     @Test

@@ -3,7 +3,6 @@ package br.com.zup.axon.bank.config
 import br.com.zup.axon.bank.domain.account.upcast.AccountCreatedEventUpcasterV20
 import br.com.zup.axon.bank.domain.account.upcast.AccountCreatedEventUpcasterV30
 import br.com.zup.axon.bank.domain.account.upcast.MoneyDepositedEventUpcaster
-import br.com.zup.axon.bank.saga.BankTransferSaga
 import br.com.zup.axon.bank.view.jpa.transfer.BankTransferService
 import br.com.zup.axon.bank.view.memory.AccountMemoryService
 import org.axonframework.commandhandling.CommandBus
@@ -11,7 +10,6 @@ import org.axonframework.commandhandling.CommandMessage
 import org.axonframework.commandhandling.SimpleCommandBus
 import org.axonframework.common.jpa.EntityManagerProvider
 import org.axonframework.common.transaction.TransactionManager
-import org.axonframework.config.SagaConfiguration
 import org.axonframework.eventsourcing.EventCountSnapshotTriggerDefinition
 import org.axonframework.eventsourcing.Snapshotter
 import org.axonframework.eventsourcing.eventstore.jpa.JpaEventStorageEngine
@@ -90,6 +88,8 @@ class AxonConfiguration {
     fun quartzEventScheduler(transactionManager: PlatformTransactionManager) = QuartzEventSchedulerFactoryBean().apply {
         setTransactionManager(transactionManager)
     }
+
+
 
 }
 

@@ -38,7 +38,8 @@ class AccountController(private val commandGateway: CommandGateway,
     @PostMapping
     fun create(@RequestBody account: AccountRequest): IdRepresentation =
             commandGateway.sendAndWait<AccountId>(
-                    CreateAccountCommand(Account.newId(), account.name, account.gender ?: Gender.UNKNOWN, account.money))
+                    CreateAccountCommand(Account.newId(), account.name, account.gender
+                            ?: Gender.UNKNOWN, account.money))
                     .let(::IdRepresentation)
 
 
@@ -65,7 +66,7 @@ class AccountController(private val commandGateway: CommandGateway,
     @DeleteMapping("{accountId}")
     fun closeAccount(@PathVariable accountId: AccountId): TransactionRepresentation {
         return commandGateway.sendAndWait<AccountId>(CloseAccountCommand(accountId))
-                .let(::TransactionRepresentation)
+                .let { TransactionRepresentation(accountId) }
     }
 
     @GetMapping
@@ -74,5 +75,5 @@ class AccountController(private val commandGateway: CommandGateway,
     @GetMapping(path = ["{id}"])
     fun findOne(@PathVariable id: AccountId) = accountService.findOne(id)
             ?.let { ResponseEntity(it, HttpStatus.OK) }
-                    ?: ResponseEntity(HttpStatus.NOT_FOUND)
+            ?: ResponseEntity(HttpStatus.NOT_FOUND)
 }
