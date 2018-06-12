@@ -37,7 +37,6 @@ enum class AccountStatus {
     ACTIVE, CLOSED
 }
 
-//@Aggregate(snapshotTriggerDefinition = "eventCountSnapshot")
 @Aggregate(repository = "customAccountRepository")
 @Revision("3.0")
 final class Account constructor() {
