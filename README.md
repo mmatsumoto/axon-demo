@@ -11,7 +11,7 @@
     * Kafka Integration
 
 ### Start Postgresql
-***$*** docker-compose -f docker-compose.yml up
+```$ docker-compose up```
 
 #### Check some rest-api examples
 [API Examples](axon-application/src/test/resources/accounts.http)

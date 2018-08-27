@@ -17,10 +17,4 @@ class AxonConfig {
     @Bean("serializer")
     fun serializer(): Serializer = JacksonSerializer()
 
-    @ConditionalOnMissingBean
-    @Bean
-    fun kafkaMessageConverter(
-            @Qualifier("eventSerializer") eventSerializer: Serializer): KafkaMessageConverter<String, ByteArray> {
-        return DefaultKafkaMessageConverter(eventSerializer)
-    }
 }
