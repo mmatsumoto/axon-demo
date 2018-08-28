@@ -1,7 +1,7 @@
 package br.com.zup.axon.application.bank.view.jpa.transfer
 
-import br.com.zup.axon.application.bank.aggregate.BankTransferStatus
 import br.com.zup.axon.application.bank.domain.account.AccountId
+import br.com.zup.axon.event.bank.transfer.BankTransferStatus
 import br.com.zup.axon.event.bank.transfer.MoneyTransferCompletedEvent
 import br.com.zup.axon.event.bank.transfer.MoneyTransferFailedEvent
 import br.com.zup.axon.event.bank.transfer.TransferMoneyRequestedEvent

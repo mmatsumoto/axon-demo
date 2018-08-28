@@ -1,5 +1,6 @@
 package br.com.zup.axon.application.bank.view.jpa.account
 
+import br.com.zup.axon.application.bank.view.jpa.transfer.BankTransferEntity
 import br.com.zup.axon.event.bank.account.AccountClosedEvent
 import br.com.zup.axon.event.bank.account.AccountCreatedEvent
 import br.com.zup.axon.event.bank.account.MoneyDepositedEvent
@@ -60,4 +61,5 @@ class AccountListener(private val accountService: AccountService) {
                 .also { logger.info("$it withdraw at jpa view") }
 
     }
+
 }

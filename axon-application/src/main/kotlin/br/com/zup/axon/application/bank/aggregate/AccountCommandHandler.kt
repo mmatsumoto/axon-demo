@@ -15,7 +15,9 @@ import org.axonframework.eventhandling.GenericEventMessage.asEventMessage
 import org.axonframework.messaging.MetaData
 import org.slf4j.LoggerFactory
 
-
+/**
+ * @see AccountConfiguration
+ */
 open class AccountCommandHandler(private val repository: Repository<Account>,
                                  private val eventBus: EventBus) {
 
@@ -39,10 +41,9 @@ open class AccountCommandHandler(private val repository: Repository<Account>,
     }
 
     @CommandHandler
-    fun on(command: CloseAccountCommand) {
+    fun on(command: CloseAccountCommand): Boolean =
         repository.load(command.id)
-                .execute(Account::close)
-    }
+                .invoke(Account::close)
 
     private inline fun <R> validateAggregate(accountId: AccountId,
                                              transactionId: TransactionId,

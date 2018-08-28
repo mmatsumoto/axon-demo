@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
-@RequestMapping("/accounts/memory",
-                consumes = [MediaType.APPLICATION_JSON_VALUE],
-                produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping("/accounts/memory", produces = [MediaType.APPLICATION_JSON_VALUE])
 class AccountMemoryController(private val accountMemoryService: AccountMemoryService) {
 
     @GetMapping

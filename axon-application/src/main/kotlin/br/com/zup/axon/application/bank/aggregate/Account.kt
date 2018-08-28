@@ -45,9 +45,6 @@ final class Account constructor() {
     var balance: Money = 0L
         private set
 
-    var lastName: String? = null
-        private set
-
     var status: AccountStatus = AccountStatus.ACTIVE
         private set
 
@@ -58,7 +55,7 @@ final class Account constructor() {
     fun withdraw(accountId: AccountId, transactionId: TransactionId, money: Money): TransactionId {
         when (canWithdraw(money)) {
             true -> apply(MoneyWithdrawnEvent(accountId, transactionId, money, this.balance - money))
-            else -> apply(MoneyWithdrawRejectedEvent(accountId, transactionId, money, this.balance))
+            false -> apply(MoneyWithdrawRejectedEvent(accountId, transactionId, money, this.balance))
         }
         return transactionId
     }
@@ -66,15 +63,15 @@ final class Account constructor() {
     fun deposit(accountId: AccountId, transactionId: TransactionId, money: Money, metaData: MetaData): TransactionId {
         when (this.isActive()) {
             true -> tryDeposit(accountId, transactionId, money, metaData)
-            else -> apply(MoneyDepositRejectEvent(accountId, transactionId, money))
+            false -> apply(MoneyDepositRejectEvent(accountId, transactionId, money))
         }
         return transactionId
     }
 
     private fun tryDeposit(accountId: AccountId, transactionId: TransactionId, money: Money, metaData: MetaData): TransactionId {
-        when (money == 666L) { // this magic number is used to simulate a command that was never succeed
+        when (money == 666L) { // this magic number is used to simulate a command that will never succeed
             true -> throw IllegalArgumentException("666 is a baaaaad number!")
-            else -> apply(MoneyDepositedEvent(accountId, transactionId, money, this.balance + money, metaData["tenant"] as String))
+            false -> apply(MoneyDepositedEvent(accountId, transactionId, money, this.balance + money, metaData["tenant"] as String))
         }
         return transactionId
     }
@@ -83,27 +80,26 @@ final class Account constructor() {
     fun on(cmd: RefundMoneyCommand): TransactionId {
         when (this.isActive()) {
             true -> apply(MoneyRefundedEvent(cmd.accountId, cmd.transactionId, cmd.money, this.balance + cmd.money))
-            else -> apply(MoneyRefundRejectEvent(cmd.accountId, cmd.transactionId, cmd.money))
+            false -> apply(MoneyRefundRejectEvent(cmd.accountId, cmd.transactionId, cmd.money))
         }
         return cmd.transactionId
     }
 
-    fun close() {
-        when (canClose()) {
-            true -> apply(AccountClosedEvent(this.id))
-            else -> apply(AccountCloseRejectEvent(this.id, this.balance))
-                    .also { log.info("Account $id can`t be closed. balance $balance") }
-        }
-    }
+    fun close(): Boolean =
+            canClose().also { canClose ->
+                when (canClose) {
+                    true -> apply(AccountClosedEvent(this.id));
+                    false -> apply(AccountCloseRejectEvent(this.id, this.balance))
+                            .also { log.info("Account $id can`t be closed. balance $balance") }
+                }
+            }
+
 
     @EventSourcingHandler
     fun on(e: AccountCreatedEvent) {
         this.id = e.id
         this.name = e.name
         this.balance = e.balance
-        if (e.name.contains(" ")) {
-            this.lastName = e.name.substringAfter(" ")
-        }
         this.status = AccountStatus.ACTIVE
     }
 
@@ -168,7 +164,7 @@ final class Account constructor() {
 
     override fun hashCode(): Int = id.hashCode()
     override fun toString(): String =
-            "Account(id=$id, name=$name, balance=$balance, lastName=$lastName, status=$status)"
+            "Account(id=$id, name=$name, balance=$balance, status=$status)"
 
     companion object {
         fun newId(): AccountId = UUID.randomUUID().toString()

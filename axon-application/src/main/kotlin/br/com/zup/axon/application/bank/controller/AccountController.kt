@@ -64,10 +64,12 @@ class AccountController(private val commandGateway: CommandGateway,
                     .let(::TransactionRepresentation)
 
     @DeleteMapping("{accountId}")
-    fun closeAccount(@PathVariable accountId: AccountId): TransactionRepresentation {
-        return commandGateway.sendAndWait<AccountId>(CloseAccountCommand(accountId))
-                .let { TransactionRepresentation(accountId) }
-    }
+    fun closeAccount(@PathVariable accountId: AccountId): ResponseEntity<Any> =
+            when (commandGateway.sendAndWait<Boolean>(CloseAccountCommand(accountId))) {
+                true -> ResponseEntity(HttpStatus.NO_CONTENT)
+                false -> ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+            }
+
 
     @GetMapping
     fun findAll() = accountService.findAll()

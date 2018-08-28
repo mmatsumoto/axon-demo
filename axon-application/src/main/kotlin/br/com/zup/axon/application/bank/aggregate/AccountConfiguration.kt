@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration
  * Generally speaking, you could just receive the Commands directly at the Aggregate itself and use everything
  * that was auto-configured by axon-springboot.
  *
- * Check the class BankTransfer
+ * @see BankTransfer
  */
 @Configuration
 class AccountConfiguration(private val eventStore: EventStore,

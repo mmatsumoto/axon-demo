@@ -1,4 +1,4 @@
-package br.com.zup.axon.application.bank.config
+package br.com.zup.axon.application.bank.config.helper
 
 import org.axonframework.config.EventProcessingConfiguration
 import org.axonframework.eventhandling.TrackingEventProcessor

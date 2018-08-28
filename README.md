@@ -1,14 +1,15 @@
 ### Axonframework Bank Demo Application (Kotlin)
     
-    * Json Serialize 
-    * Upcast
-    * Snapshot
-    * Custom Command Handler
-    * Dispatch Interceptors
-    * GroupProcessors
-    * Saga
-    * EventScheduller (Quartz)
-    * Kafka Integration
+* Dispatch Interceptors
+* Custom Command Handler
+* Saga
+* Group Processors
+* TrackingEventProcessor (start|stop|replay)
+* Upcast
+* EventScheduller (Quartz)
+* Kafka Integration
+* Snapshot
+
 
 ### Start Postgresql
 ```$ docker-compose up```

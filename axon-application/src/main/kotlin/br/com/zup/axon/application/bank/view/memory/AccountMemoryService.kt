@@ -1,6 +1,6 @@
 package br.com.zup.axon.application.bank.view.memory
 
-import br.com.zup.axon.application.bank.config.trackingEventProcessor
+import br.com.zup.axon.application.bank.config.helper.trackingEventProcessor
 import org.axonframework.config.EventProcessingConfiguration
 import org.springframework.stereotype.Service
 
@@ -30,6 +30,24 @@ class AccountMemoryServiceImpl(private val configuration: EventProcessingConfigu
         events.clear()
     }
 
+    override fun getEvents(): Map<String, Map<String, List<Any>>> = events
+            .map { event ->
+                event.key to event.value.map { it.key to it.value.toList() }.toMap()
+            }
+            .toMap()
+
+    override fun start() {
+        configuration.trackingEventProcessor(AccountMemoryListener.GROUP_NAME) {
+            it.start()
+        }
+    }
+
+    override fun stop() {
+        configuration.trackingEventProcessor(AccountMemoryListener.GROUP_NAME) {
+            it.shutDown()
+        }
+    }
+
     override fun replay() {
         configuration.trackingEventProcessor(AccountMemoryListener.GROUP_NAME) {
             it.shutDown()
@@ -38,25 +56,6 @@ class AccountMemoryServiceImpl(private val configuration: EventProcessingConfigu
         }
     }
 
-    override fun getEvents(): Map<String, Map<String, List<Any>>> = events
-            .map { event ->
-                event.key to event.value
-                        .map { it.key to it.value.toList() }
-                        .toMap()
-            }
-            .toMap()
-
-    override fun stop() {
-        configuration.trackingEventProcessor(AccountMemoryListener.GROUP_NAME) {
-            it.shutDown()
-        }
-    }
-
-    override fun start() {
-        configuration.trackingEventProcessor(AccountMemoryListener.GROUP_NAME) {
-            it.start()
-        }
-    }
 
 
 }

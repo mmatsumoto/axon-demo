@@ -21,7 +21,7 @@ class BankTransferListener(private val bankTransferService: BankTransferService)
         logger.info("$event received at ${this.javaClass.name}")
 
         bankTransferService.start(event)
-                .also(logEvent())
+                .also(::logEvent)
     }
 
     @EventHandler
@@ -29,7 +29,7 @@ class BankTransferListener(private val bankTransferService: BankTransferService)
         logger.info("$event received at ${this.javaClass.name}")
 
         bankTransferService.fail(event)
-                .also(logEvent())
+                .also(::logEvent)
     }
 
     @EventHandler
@@ -37,11 +37,12 @@ class BankTransferListener(private val bankTransferService: BankTransferService)
         logger.info("$event received at ${this.javaClass.name}")
 
         bankTransferService.complete(event)
-                .also(logEvent())
+                .also(::logEvent)
     }
 
-    private fun logEvent(): (BankTransferEntity?) -> Unit =
-            { logger.info("$it saved at jpa view") }
+    private fun logEvent(bank: BankTransferEntity?) {
+        logger.info("$bank saved at jpa view")
+    }
 
     companion object {
         const val GROUP_NAME = "BankTransferGroup"
