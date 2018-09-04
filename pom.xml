@@ -30,16 +30,28 @@
         <postgresql.version>42.1.4</postgresql.version>
         <kafka.clients.version>0.11.0.2</kafka.clients.version>
         <spring.boot.starter.quartz.version>2.0.2.RELEASE</spring.boot.starter.quartz.version>
+
+        <spring-cloud.version>Edgware.SR4</spring-cloud.version>
     </properties>
 
     <modules>
+        <module>axon-eureka</module>
         <module>axon-events</module>
-        <module>axon-application</module>
+        <module>axon-command</module>
         <module>axon-kafka-consumer</module>
+        <module>axon-gateway</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <dependency>
                 <groupId>br.com.zup.axon</groupId>
                 <artifactId>axon-events</artifactId>
@@ -82,6 +94,11 @@
             </dependency>
             <dependency>
                 <groupId>org.axonframework</groupId>
+                <artifactId>axon-distributed-commandbus-springcloud</artifactId>
+                <version>${axon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.axonframework</groupId>
                 <artifactId>axon-test</artifactId>
                 <version>${axon.version}</version>
                 <scope>test</scope>
@@ -96,7 +113,6 @@
                 <artifactId>kafka-clients</artifactId>
                 <version>${kafka.clients.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-quartz</artifactId>

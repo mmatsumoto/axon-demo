@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>br.com.zup.axon</groupId>
-	<artifactId>axon-kafka-consumer</artifactId>
+	<artifactId>axon-command</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>Axon Kafka Consumer</name>
-	<description>Axon Kafka Consumer</description>
+	<name>Axon Command</name>
+	<description>Axon Command</description>
 
 	<parent>
 		<groupId>br.com.zup.axon</groupId>
@@ -18,7 +18,6 @@
 	</parent>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>br.com.zup.axon</groupId>
 			<artifactId>axon-events</artifactId>
@@ -26,7 +25,32 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-distributed-commandbus-springcloud</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
+        </dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 		</dependency>
 
 		<dependency>
@@ -40,18 +64,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-quartz</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.axonframework</groupId>
 			<artifactId>axon-spring-boot-starter</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-eureka</artifactId>
 		</dependency>
 
 		<dependency>
@@ -70,6 +89,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
 
 </project>

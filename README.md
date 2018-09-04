@@ -15,5 +15,5 @@
 ```$ docker-compose up```
 
 #### Check some rest-api examples
-[API Examples](axon-application/src/test/resources/accounts.http)
+[API Examples](axon-command/src/test/resources/accounts.http)
 
