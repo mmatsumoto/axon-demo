@@ -5,6 +5,6 @@ import org.axonframework.eventhandling.TrackingEventProcessor
 
 
 fun EventProcessingConfiguration.trackingEventProcessor(name: String, apply: (TrackingEventProcessor) -> Unit) {
-    this.eventProcessor<TrackingEventProcessor>(name)
+    this.eventProcessorByProcessingGroup<TrackingEventProcessor>(name)
             .ifPresent(apply)
 }

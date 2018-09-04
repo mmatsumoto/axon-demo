@@ -26,7 +26,7 @@
         <jackson.datatype.jsr310.version>2.9.2</jackson.datatype.jsr310.version>
         <kotlin.version>1.2.41</kotlin.version>
         <jackson.module.kotlin.version>2.8.11.1</jackson.module.kotlin.version>
-        <axon.version>3.3.1</axon.version>
+        <axon.version>3.3.5</axon.version>
         <postgresql.version>42.1.4</postgresql.version>
         <kafka.clients.version>0.11.0.2</kafka.clients.version>
         <spring.boot.starter.quartz.version>2.0.2.RELEASE</spring.boot.starter.quartz.version>

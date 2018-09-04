@@ -7,7 +7,13 @@ import br.com.zup.axon.event.bank.account.MoneyDepositedEvent
 import br.com.zup.axon.event.bank.account.MoneyRefundedEvent
 import br.com.zup.axon.event.bank.account.MoneyWithdrawnEvent
 import org.axonframework.config.ProcessingGroup
+import org.axonframework.eventhandling.AllowReplay
 import org.axonframework.eventhandling.EventHandler
+import org.axonframework.eventhandling.ReplayStatus
+import org.axonframework.eventhandling.ResetHandler
+import org.axonframework.eventhandling.ResetTriggeredEvent
+import org.axonframework.messaging.MetaData
+import org.axonframework.messaging.annotation.MetaDataValue
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -15,13 +21,21 @@ import org.springframework.stereotype.Component
 
 @Component
 @ProcessingGroup(GROUP_NAME)
+@AllowReplay
 class AccountMemoryListener(private val accountMemoryService: AccountMemoryService) {
 
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
+    @ResetHandler
+    fun onReset() {
+        log.info("Reset Handler: AccountMemoryListener...")
+    }
+
     @EventHandler
-    fun on(event: AccountCreatedEvent) {
-        log.info("AccountMemoryListener e: $event")
+    fun on(event: AccountCreatedEvent,
+            metaData: MetaData,
+           replayStatus: ReplayStatus) {
+        log.info("AccountMemoryListener event: $event, replay: $replayStatus, metaData: $metaData")
 
         accountMemoryService.insertEvent(event.id, event)
     }
