@@ -74,8 +74,7 @@ $ curl -XGET http://localhost:8760/accounts
 java -jar axon-kafka-consumer/target/axon-kafka-consumer-1.0.0-SNAPSHOT.jar
 ```
 
-#### Check some rest-api examples
-[API Examples](axon-command/src/test/resources/accounts.http)
+#### [Check some rest-api examples to axon-command](axon-command/src/test/resources/accounts.http)
 
 If you are using Intellij you can open this file and just click on the Green Arrow Icon to make the calls.
 

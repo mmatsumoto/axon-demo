@@ -1,56 +1,56 @@
 ###
-POST http://localhost:8080/accounts
+POST http://localhost:8760/accounts
 Content-Type: application/json
 
 < createAccount.json
 
 ###
-GET http://localhost:8080/accounts
+GET http://localhost:8760/accounts
 Content-Type: application/json
 
 ###
-GET http://localhost:8080/accounts/00747108-51f6-423e-9230-d335f5e66d26
+GET http://localhost:8760/accounts/00747108-51f6-423e-9230-d335f5e66d26
 Content-Type: application/json
 
 ###
-GET localhost:8080/accounts/memory
+GET localhost:8760/accounts/memory
 Content-Type: application/json
 
 ###
-POST localhost:8080/accounts/memory/stop
+POST localhost:8760/accounts/memory/stop
 Content-Type: application/json
 
 ###
-POST localhost:8080/accounts/memory/start
+POST localhost:8760/accounts/memory/start
 Content-Type: application/json
 
 ###
-POST localhost:8080/accounts/memory/replay
+POST localhost:8760/accounts/memory/replay
 Content-Type: application/json
 
 ###
-PUT http://localhost:8080/accounts/00747108-51f6-423e-9230-d335f5e66d26/deposit/100
+PUT http://localhost:8760/accounts/00747108-51f6-423e-9230-d335f5e66d26/deposit/100
 Content-Type: application/json
 
 ###
-PUT http://localhost:8080/accounts/00747108-51f6-423e-9230-d335f5e66d26/withdraw/20
+PUT http://localhost:8760/accounts/00747108-51f6-423e-9230-d335f5e66d26/withdraw/20
 Content-Type: application/json
 
 ###
-DELETE http://localhost:8080/accounts/e1117f3f-bd00-4faf-8850-e0ba21e74388
+DELETE http://localhost:8760/accounts/e1117f3f-bd00-4faf-8850-e0ba21e74388
 Content-Type: application/json
 
 ###
-PUT http://localhost:8080/accounts/transfer/7a519a61-95cb-4bff-ab9e-6f6d8a7bf77f/00747108-51f6-423e-9230-d335f5e66d26/80
+PUT http://localhost:8760/accounts/transfer/7a519a61-95cb-4bff-ab9e-6f6d8a7bf77f/00747108-51f6-423e-9230-d335f5e66d26/80
 Content-Type: application/json
 
 
 ### 666 simulates a saga compensation
-PUT http://localhost:8080/accounts/transfer/7a519a61-95cb-4bff-ab9e-6f6d8a7bf77f/00747108-51f6-423e-9230-d335f5e66d26/666
+PUT http://localhost:8760/accounts/transfer/7a519a61-95cb-4bff-ab9e-6f6d8a7bf77f/00747108-51f6-423e-9230-d335f5e66d26/666
 Content-Type: application/json
 
 
 ###
-GET localhost:8080/transfers
+GET localhost:8760/transfers
 
 ###
