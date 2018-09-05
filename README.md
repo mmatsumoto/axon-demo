@@ -3,13 +3,12 @@
 * Dispatch Interceptors
 * Custom Command Handler
 * Distributed Command Bus
-* Saga
-* Group Processors
+* Sagas (using EventScheduler (Quartz))
+* Group Processors Configuration
 * TrackingEventProcessor (start|stop|replay)
 * Upcaster
-* EventScheduler (Quartz)
 * Kafka Integration
-* Snapshot
+* Custom Snapshot Configuration
 
 
 ### Start the Postgresql and Kafka:
