@@ -16,6 +16,10 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
+/axon-command/axon-command.iml
+/axon-eureka/axon-eureka.iml
+/axon-events/axon-events.iml
+/axon-kafka-consumer/axon-kafka-consumer.iml
 
 # IDEA
 # ----
