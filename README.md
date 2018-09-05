@@ -23,6 +23,7 @@ Start the applications in this order:
 Eureka Server port 8761. Dashboard [http://localhost:8761](http://localhost:8761)
 
 ```
+$ mvn clean install
 $ java -jar axon-eureka/target/axon-eureka-1.0.0-SNAPSHOT.jar
 ```
 
