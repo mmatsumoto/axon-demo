@@ -51,7 +51,7 @@ class AccountCreatedEventUpcasterV20Test {
 
         val upcastedEventV20 = upcasterV20.doUpcast(intermediateRepresentationV10) as UpcastedEventRepresentation<*>
 
-        val dataRevision20: SimpleSerializedObject<ObjectNode> = upcastedEventV20.data as SimpleSerializedObject<ObjectNode>
+        val dataRevision20 = upcastedEventV20.data as SimpleSerializedObject<ObjectNode>
 
         assertEquals("br.com.zup.axon.event.bank.account.AccountCreatedEvent", dataRevision20.type.name)
         assertEquals("2.0", dataRevision20.type.revision)
@@ -79,7 +79,7 @@ class AccountCreatedEventUpcasterV20Test {
 
         val upcastedEventV30 = upcasterV30.doUpcast(intermediateRepresentationV20) as UpcastedEventRepresentation<*>
 
-        val dataRevision30: SimpleSerializedObject<ObjectNode> = upcastedEventV30.data as SimpleSerializedObject<ObjectNode>
+        val dataRevision30 = upcastedEventV30.data as SimpleSerializedObject<ObjectNode>
 
         assertEquals("br.com.zup.axon.event.bank.account.AccountCreatedEvent", dataRevision30.type.name)
         assertEquals("3.0", dataRevision30.type.revision)
