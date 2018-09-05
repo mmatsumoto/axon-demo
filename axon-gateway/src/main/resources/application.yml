@@ -1,0 +1,30 @@
+server:
+  port: 8760
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: localhost
+
+spring:
+  application:
+    name: axon-gateway
+
+#  cloud:
+#    gateway:
+#      discovery:
+#        locator:
+#          enabled: true
+#      routes:
+#      - id: axon-command
+#        uri: lb://axon-command
+#        predicates:
+#        - Path=/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

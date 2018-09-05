@@ -1,5 +1,6 @@
 package br.com.zup.axon.command.bank.config
 
+import br.com.zup.axon.command.bank.view.generic.GenericListener
 import br.com.zup.axon.command.bank.view.jpa.transfer.BankTransferListener
 import br.com.zup.axon.command.bank.view.memory.AccountMemoryListener
 import br.com.zup.axon.event.bank.account.upcast.AccountCreatedEventUpcasterV20
@@ -46,30 +47,10 @@ class AxonConfiguration {
     fun serializer(): Serializer = JacksonSerializer()
 
 
-    /* example to register an interceptor to add some metadata in all commands */
-    @Autowired
-    fun registerInterceptors(simpleCommandBus: SimpleCommandBus) {
-        registerDispatchInterceptor(simpleCommandBus)
-    }
-
-    // only used for sagas
+    // simpleCommandBus only used for sagas
     @Bean("simpleCommandGateway")
-    fun distributedCommandGateway(simpleCommandBus: SimpleCommandBus): CommandGateway {
+    fun simpleCommandGateway(simpleCommandBus: SimpleCommandBus): CommandGateway {
         return DefaultCommandGateway(simpleCommandBus)
-    }
-
-    /* example to register an interceptor to add some metadata in all commands */
-    @Autowired
-    fun registerInterceptors(distributedCommandBus: DistributedCommandBus) {
-        registerDispatchInterceptor(distributedCommandBus)
-    }
-
-    private fun registerDispatchInterceptor(commandBus: CommandBus) {
-        commandBus.registerDispatchInterceptor { _ ->
-            BiFunction<Int, CommandMessage<*>, CommandMessage<*>> { _, message ->
-                message.andMetaData(mapOf("tenant" to "sample_segment"))
-            }
-        }
     }
 
     @Bean
@@ -79,14 +60,6 @@ class AxonConfiguration {
     @Bean
     fun eventCountSnapshot(snapshotter: Snapshotter) =
             EventCountSnapshotTriggerDefinition(snapshotter, 5)
-
-    @Autowired
-    fun accountMemoryProcessor(configuration: EventProcessingConfiguration) {
-        configuration.registerTrackingEventProcessor(AccountMemoryListener.GROUP_NAME)
-        configuration.registerTrackingEventProcessor("GenericKafkaConsumerListenerGroup")
-        configuration.registerTrackingEventProcessor(BankTransferListener.GROUP_NAME)
-//        configuration.registerTrackingEventProcessor(GenericListener.GROUP_NAME)
-    }
 
     @Bean
     fun upcasterChain(): EventUpcasterChain =
@@ -112,4 +85,35 @@ class AxonConfiguration {
     fun quartzEventScheduler(transactionManager: PlatformTransactionManager) = QuartzEventSchedulerFactoryBean().apply {
         setTransactionManager(transactionManager)
     }
+
+
+
+    /* example to register an interceptor to add some metadata in all commands */
+    @Autowired
+    fun registerInterceptors(simpleCommandBus: SimpleCommandBus) {
+        registerDispatchInterceptor(simpleCommandBus)
+    }
+
+    /* example to register an interceptor to add some metadata in all commands */
+    @Autowired
+    fun registerInterceptors(distributedCommandBus: DistributedCommandBus) {
+        registerDispatchInterceptor(distributedCommandBus)
+    }
+
+    private fun registerDispatchInterceptor(commandBus: CommandBus) {
+        commandBus.registerDispatchInterceptor { _ ->
+            BiFunction<Int, CommandMessage<*>, CommandMessage<*>> { _, message ->
+                message.andMetaData(mapOf("tenant" to "sample_segment"))
+            }
+        }
+    }
+
+    @Autowired
+    fun accountMemoryProcessor(configuration: EventProcessingConfiguration) {
+        configuration.registerTrackingEventProcessor(AccountMemoryListener.GROUP_NAME)
+        configuration.registerTrackingEventProcessor(BankTransferListener.GROUP_NAME)
+        configuration.registerTrackingEventProcessor(GenericListener.GROUP_NAME)
+    }
+
+
 }
