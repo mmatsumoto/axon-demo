@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.axonframework.serialization.Revision
 
-@Revision("3.0")
+@Revision("2.0")
 data class AccountCreatedEvent @JsonCreator constructor(
         @JsonProperty("id") val id: AccountId,
         @JsonProperty("name") val name: AccountName,

@@ -1,13 +1,12 @@
 package br.com.zup.axon.event.bank.account.upcast
 
 import br.com.zup.axon.event.bank.account.MoneyDepositedEvent
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.axonframework.serialization.SimpleSerializedType
 import org.axonframework.serialization.upcasting.event.IntermediateEventRepresentation
 import org.axonframework.serialization.upcasting.event.SingleEventUpcaster
 
-class MoneyDepositedEventUpcaster: SingleEventUpcaster() {
+class MoneyDepositedEventUpcaster : SingleEventUpcaster() {
 
     private val targetType = SimpleSerializedType(MoneyDepositedEvent::class.java.typeName, "1.0")
 
@@ -16,11 +15,9 @@ class MoneyDepositedEventUpcaster: SingleEventUpcaster() {
 
     override fun doUpcast(intermediateRepresentation: IntermediateEventRepresentation): IntermediateEventRepresentation =
             intermediateRepresentation.upcastPayload(
-                    SimpleSerializedType(targetType.name, "2.0"), JsonNode::class.java) { jsonNode ->
+                    SimpleSerializedType(targetType.name, "2.0"), ObjectNode::class.java) { jsonNode ->
 
-                if (jsonNode is ObjectNode) {
-                    jsonNode.put("tenant", intermediateRepresentation.metaData.`object`["tenant"] as String)
-                }
+                jsonNode.put("tenant", intermediateRepresentation.metaData.`object`["tenant"] as String)
 
                 jsonNode
             }
