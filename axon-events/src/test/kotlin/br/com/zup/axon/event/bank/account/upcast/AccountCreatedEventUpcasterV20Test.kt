@@ -36,7 +36,6 @@ class AccountCreatedEventUpcasterV20Test {
 
     @Suppress("UNCHECKED_CAST")
     @Test
-    @Ignore
     fun `upcast v1 to v2 to v3`() {
 
         val intermediateRepresentationV10 = InitialEventRepresentation(GenericDomainEventEntry("Account",
@@ -46,8 +45,8 @@ class AccountCreatedEventUpcasterV20Test {
                                                                                                Instant.now(),
                                                                                                "br.com.zup.axon.event.bank.account.AccountCreatedEvent",
                                                                                                "1.0",
-                                                                                               objectMapper.readTree(payload),
-                                                                                               objectMapper.readTree(metaData)), serializer)
+                                                                                               payload,
+                                                                                               metaData), serializer)
 
         assertTrue("payloadRevision is not equals to '1.0'") { upcasterV20.canUpcast(intermediateRepresentationV10) }
 
@@ -73,8 +72,8 @@ class AccountCreatedEventUpcasterV20Test {
                                                                                                Instant.now(),
                                                                                                "br.com.zup.axon.event.bank.account.AccountCreatedEvent",
                                                                                                "2.0",
-                                                                                               dataRevision20.data,
-                                                                                               objectMapper.readTree(metaData)), serializer)
+                                                                                               dataRevision20.data.toString(),
+                                                                                               metaData), serializer)
 
         assertTrue("payloadRevision is not equals to '2.0'") { upcasterV30.canUpcast(intermediateRepresentationV20) }
 

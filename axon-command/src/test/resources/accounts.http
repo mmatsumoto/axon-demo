@@ -4,7 +4,7 @@ Content-Type: application/json
 
 < createAccount.json
 
-###
+### jpa view
 GET http://localhost:8760/accounts
 Content-Type: application/json
 
@@ -12,7 +12,7 @@ Content-Type: application/json
 GET http://localhost:8760/accounts/00747108-51f6-423e-9230-d335f5e66d26
 Content-Type: application/json
 
-###
+### simple in-memory view
 GET localhost:8760/accounts/memory
 Content-Type: application/json
 
