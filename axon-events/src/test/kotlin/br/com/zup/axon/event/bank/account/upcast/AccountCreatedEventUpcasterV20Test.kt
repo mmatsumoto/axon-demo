@@ -11,6 +11,7 @@ import org.axonframework.serialization.upcasting.event.InitialEventRepresentatio
 import org.axonframework.serialization.upcasting.event.UpcastedEventRepresentation
 import org.intellij.lang.annotations.Language
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import java.time.Instant
 import kotlin.test.assertEquals
@@ -35,6 +36,7 @@ class AccountCreatedEventUpcasterV20Test {
 
     @Suppress("UNCHECKED_CAST")
     @Test
+    @Ignore
     fun `upcast v1 to v2 to v3`() {
 
         val intermediateRepresentationV10 = InitialEventRepresentation(GenericDomainEventEntry("Account",

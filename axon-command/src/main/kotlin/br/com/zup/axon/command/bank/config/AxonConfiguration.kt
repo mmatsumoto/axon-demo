@@ -112,7 +112,7 @@ class AxonConfiguration {
     fun accountMemoryProcessor(configuration: EventProcessingConfiguration) {
         configuration.registerTrackingEventProcessor(AccountMemoryListener.GROUP_NAME)
         configuration.registerTrackingEventProcessor(BankTransferListener.GROUP_NAME)
-        configuration.registerTrackingEventProcessor(GenericListener.GROUP_NAME)
+//        configuration.registerTrackingEventProcessor(GenericListener.GROUP_NAME)
     }
 
 

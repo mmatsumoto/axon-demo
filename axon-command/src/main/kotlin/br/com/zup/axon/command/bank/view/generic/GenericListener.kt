@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-@ProcessingGroup(GROUP_NAME)
+//@ProcessingGroup(GROUP_NAME)
 class GenericListener {
 
     private val log: Logger = LoggerFactory.getLogger(javaClass)
