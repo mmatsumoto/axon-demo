@@ -7,18 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 
 
 @SpringBootApplication
-class AxonCommandApplication {
-
-    private val log: Logger = LoggerFactory.getLogger(AxonCommandApplication::class.java)
-
-//    @Bean
-//    fun resetTokenAccountMemoryProcessor(accountMemoryService: AccountMemoryService): CommandLineRunner {
-//        return CommandLineRunner {
-//            log.info("\nReplaying AccountMemoryListener: ")
-//            accountMemoryService.replay()
-//        }
-//    }
-}
+class AxonCommandApplication
 
 
 fun main(args: Array<String>) {
